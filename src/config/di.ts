@@ -1,5 +1,6 @@
 import * as redis from 'async-redis';
 
+import { constants } from '../constants/constatnts';
 //Controllers
 import { Board } from '../controllers/board';
 import { MainController } from '../controllers/index';
@@ -10,12 +11,21 @@ serviceLocator.register('client', () => {
     return client;
   });
 
+/**
+ * Creates an instance of the constants
+ * 
+ */
+  serviceLocator.register('constants', () => {
+    return constants;
+  });
+
   /**
- * Creates an instance of the Crash board Controllers
+ * Creates an instance of the boardControllers
  */
   serviceLocator.register('boardControllers', (serviceLocator) => {
     const client = serviceLocator.get('client');
-    return new Board(client);
+    const constants = serviceLocator.get('constants');
+    return new Board(client,constants);
   });
 
   /**
@@ -23,6 +33,7 @@ serviceLocator.register('client', () => {
  */
   serviceLocator.register('mainController', (serviceLocator) => {
     const boardControllers = serviceLocator.get('boardControllers');
-    return new MainController(boardControllers);
+    const constants = serviceLocator.get('constants');
+    return new MainController(boardControllers, constants);
   });
   module.exports = serviceLocator;
