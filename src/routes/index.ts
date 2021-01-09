@@ -26,4 +26,14 @@ export const setup = (server, serviceLocator) => {
     },
     (req, res) => mainController.startGame(req, res)
   );
+
+  // place individual ship
+  server.post(
+    {
+      path: '/place/ship',
+      name: 'post vehicle data',
+      version: '1.0.0',
+    },
+    (req, res) => mainController.placeShip(req, res)
+  );
 };
