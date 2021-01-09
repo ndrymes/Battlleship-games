@@ -1,4 +1,3 @@
 export const constants = {
-    DIRECTION: ['VERTICAL', 'HORIZONTAL'],
-  };
-  
+  DIRECTION: ['VERTICAL', 'HORIZONTAL'],
+};

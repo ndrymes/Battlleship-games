@@ -1,5 +1,5 @@
-import * as dotenv from 'dotenv'
-dotenv.config()
+import * as dotenv from 'dotenv';
+dotenv.config();
 const app_name: string = 'Test project TASKWORLD';
 
 // call enviroment variables here

@@ -15,11 +15,23 @@ export class Board {
         board[row][column] = '-';
       }
     }
+    const originalShipSizes = {
+      battleShips: 1,
+      cruisers: 2,
+      destroyers: 3,
+      submarines: 4,
+    };
+    //remove previous session
+    this.client.del(`${playerName}ship`);
+    //store new session for ship
+    const shipDetails: string = JSON.stringify(originalShipSizes);
+    await this.client.set(`${playerName}ship`, shipDetails);
+
     //store new game session for a particular player using an Id(in this case just names)
     const redisValue: string = JSON.stringify(board);
     await this.client.set(playerName, redisValue);
   }
-  
+
   async addShip(reqBody: IaddShip) {
     let { row, column, direction, shipLength, playerName } = reqBody;
     //assign ship names
@@ -47,7 +59,7 @@ export class Board {
       console.log(index.join(' '));
     }
     console.log({ shipName });
-// check if a particular ship already on board
+    // check if a particular ship already on board
     for (let row of board) {
       for (let column of row) {
         console.log('colum', column);
@@ -60,7 +72,7 @@ export class Board {
       }
     }
     console.log('herr', board[row][column]);
-//check if a ship is already  placed on the request space
+    //check if a ship is already  placed on the request space
     if (board[row][column] !== '-') {
       throw new Error('A ship is placed here already');
     }
@@ -72,39 +84,31 @@ export class Board {
     if (board[row + 1][column] !== '-') {
       throw new Error('you have to go a row up to place a ship');
     }
-     //check if a has one square  row to the right of the request space
+    //check if a has one square  row to the right of the request space
     if (board[row][column - 1] !== '-') {
-      throw new Error(
-        'you have to go  column up to the right to place a ship'
-      );
+      throw new Error('you have to go  column up to the right to place a ship');
     }
     //check if a has one square  row to the left of the request space
     if (board[row][column + 1] !== '-') {
       throw new Error('you have to go a column up to the left to place a ship');
     }
-   // fill ship space on the board
+    // fill ship space on the board
     for (let index = 0; index < shipLength; index++) {
       // console.log({checkSpace});
 
       if (direction === this.constants.DIRECTION[0]) {
-        console.log('red', row);
-
-        console.log('man', board[row][column]);
-        //   console.log('reo' , row+checkSpace);
+        // check if a ship is already placed while placing ships
         if (board[row][column] !== '-') {
           throw new Error('A ship is placed here already');
         }
+        // check if a ship is already placed while placing ships
         if (board[row + 1][column] !== '-') {
           throw new Error('You need to move up one row to place your ship');
         }
+        //place ship on board vertically
         board[row][column] = shipName;
         row += 1;
-      }
-      else {
-        console.log('red', row);
-
-        console.log('man', board[row][column]);
-        //   console.log('reo' , row+checkSpace);
+      } else {
         if (board[row][column] !== '-') {
           throw new Error('A ship is placed here already');
         }
@@ -113,15 +117,13 @@ export class Board {
             'You need to move to the left by one colum to place your ship'
           );
         }
-        // checkSpace++
+        //place ship on board horizontally
         board[row][column] = shipName;
         column += 1;
       }
-
-      //column += 1;
     }
     //store session
-    const redisValue = JSON.stringify(board);
+    const redisValue: string = JSON.stringify(board);
     await this.client.set(playerName, redisValue);
   }
 }
