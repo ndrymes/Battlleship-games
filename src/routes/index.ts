@@ -36,4 +36,13 @@ export const setup = (server, serviceLocator) => {
     },
     (req, res) => mainController.placeShip(req, res)
   );
+
+  server.post(
+    {
+      path: '/ship/attack',
+      name: 'post vehicle data',
+      version: '1.0.0',
+    },
+    (req, res) => mainController.attackShip(req, res)
+  );
 };

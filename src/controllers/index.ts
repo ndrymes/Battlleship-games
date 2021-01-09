@@ -4,15 +4,17 @@ const HTTPStatus = require('../constants/http_status');
 export class MainController {
   boardControllers: any;
   constants: any;
+  shipControllers: any;
   /**
    * Class Constructor
    * @param logger - winston logger
    * @param boardControllers
    * @param crashRatingControllers
    */
-  constructor(boardControllers,constants) {
+  constructor(boardControllers, shipControllers, constants) {
     this.boardControllers = boardControllers;
-    this.constants = constants
+    this.constants = constants;
+    this.shipControllers = shipControllers;
   }
 
   async startGame(req: Request, res: Response) {
@@ -51,6 +53,20 @@ export class MainController {
         playerName,
       });
       return this.handleOk(res, 'ship placed succesfully', data);
+    } catch (error) {
+      return this.handleBadRequest(res, error.message);
+    }
+  }
+  async attackShip(req: Request, res: Response) {
+    const { playerName, row, column } = req.body;
+    if (!playerName || !row || !column) {
+      return this.handleBadRequest(
+        res,
+        'player name, row and column are required'
+      );
+    }
+    try {
+      await this.shipControllers.attack({ playerName, row, column });
     } catch (error) {
       return this.handleBadRequest(res, error.message);
     }
