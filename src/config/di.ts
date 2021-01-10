@@ -24,8 +24,8 @@ serviceLocator.register('constants', () => {
  * Creates an instance of the boardControllers
  */
 serviceLocator.register('boardControllers', (serviceLocator) => {
-  const client = serviceLocator.get('client');
-  const constants = serviceLocator.get('constants');
+  const client:object = serviceLocator.get('client');
+  const constants:object = serviceLocator.get('constants');
   return new Board(client, constants);
 });
 
@@ -33,8 +33,8 @@ serviceLocator.register('boardControllers', (serviceLocator) => {
  * Creates an instance of the shipControllers
  */
 serviceLocator.register('shipControllers', (serviceLocator) => {
-  const client = serviceLocator.get('client');
-  const constants = serviceLocator.get('constants');
+  const client:object = serviceLocator.get('client');
+  const constants:object = serviceLocator.get('constants');
   return new Ship(client, constants);
 });
 
@@ -42,9 +42,9 @@ serviceLocator.register('shipControllers', (serviceLocator) => {
  * Creates an instance of the Main Controller
  */
 serviceLocator.register('mainController', (serviceLocator) => {
-  const boardControllers = serviceLocator.get('boardControllers');
-  const shipControllers = serviceLocator.get('shipControllers');
-  const constants = serviceLocator.get('constants');
+  const boardControllers:object = serviceLocator.get('boardControllers');
+  const shipControllers:object = serviceLocator.get('shipControllers');
+  const constants:object = serviceLocator.get('constants');
   return new MainController(boardControllers, shipControllers, constants);
 });
 module.exports = serviceLocator;

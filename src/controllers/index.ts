@@ -9,14 +9,14 @@ export class MainController {
    * Class Constructor
    * @param logger - winston logger
    * @param boardControllers
-   * @param crashRatingControllers
+   * @param  shipControllers;
    */
   constructor(boardControllers, shipControllers, constants) {
     this.boardControllers = boardControllers;
     this.constants = constants;
     this.shipControllers = shipControllers;
   }
-
+//start a new game session
   async startGame(req: Request, res: Response) {
     const { playerName } = req.body;
     if (!playerName) {
@@ -35,11 +35,11 @@ export class MainController {
   }
 
   async placeShip(req: Request, res: Response) {
-    const { playerName, direction, shipLength, row, column } = req.body;
-    if (!playerName || !direction || !shipLength || !row || !column) {
+    const { playerName, direction, shipType, row, column } = req.body;
+    if (!playerName || !direction || !shipType || !row || !column) {
       return this.handleBadRequest(
         res,
-        'player name,direction , length, row and column are required'
+        'player name,direction , type, row and column are required'
       );
     }
     if (!this.constants.DIRECTION.includes(direction)) {
@@ -48,8 +48,29 @@ export class MainController {
         'direction can only be VERTICAL or HORIZONTAL'
       );
     }
+    //check if ships name is included in type
+    if (
+      ![
+        this.constants.SHIPNAMES.BATTLESHIPS,
+        this.constants.SHIPNAMES.CRUISERS,
+        this.constants.SHIPNAMES.DESTROYERS,
+        this.constants.SHIPNAMES.SUBMARINES,
+      ].includes(shipType)
+    ) {
+      return this.handleBadRequest(
+        res,
+        'ship can only be battleShips,cruisers, destroyers and submarines'
+      );
+    }
+    const originalShipSizes = {
+      battleShips: 1,
+      cruisers: 2,
+      destroyers: 3,
+      submarines: 4,
+    };
+    const shipLength: number = originalShipSizes[shipType];
     try {
-      const data = await this.boardControllers.addShip({
+      const data: string = await this.boardControllers.addShip({
         shipLength,
         direction,
         row,
@@ -72,12 +93,23 @@ export class MainController {
       );
     }
     try {
-      const data = await this.shipControllers.attack({
+      const data: string = await this.shipControllers.attack({
         playerName,
         row,
         column,
       });
-      console.log({ data });
+
+      return this.handleOk(res, 'move made succesfully', data);
+    } catch (error) {
+      return this.handleBadRequest(res, error.message);
+    }
+  }
+  async getBoardDetails(req: Request, res: Response) {
+    const playerName: string = req.params.playerName;
+    try {
+      const data: string = await this.boardControllers.getBoardDetails(
+        playerName
+      );
 
       return this.handleOk(res, 'move made succesfully', data);
     } catch (error) {
@@ -113,8 +145,6 @@ export class MainController {
     );
     return resp.res_message();
   }
-
-  // eslint-disable-next-line class-methods-use-this
   handleBadRequest(res: Response, message: string) {
     const resp = new Responses(HTTPStatus.BadRequest, message, res, true, null);
     return resp.res_message();

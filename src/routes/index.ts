@@ -31,18 +31,27 @@ export const setup = (server, serviceLocator) => {
   server.post(
     {
       path: '/place/ship',
-      name: 'post vehicle data',
+      name: 'place individual ship',
       version: '1.0.0',
     },
     (req, res) => mainController.placeShip(req, res)
   );
-
+  //attack ship
   server.post(
     {
       path: '/ship/attack',
-      name: 'post vehicle data',
+      name: 'attack ship',
       version: '1.0.0',
     },
     (req, res) => mainController.attackShip(req, res)
+  );
+  //get board details
+  server.get(
+    {
+      path: '/board/details/:playerName',
+      name: 'get board details',
+      version: '1.0.0',
+    },
+    (req, res) => mainController.getBoardDetails(req, res)
   );
 };

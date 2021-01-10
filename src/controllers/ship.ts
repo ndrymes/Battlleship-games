@@ -9,71 +9,70 @@ export class Ship {
   }
   async attack(reqBody: attackShip) {
     return new Promise<string>(async (resolve, reject) => {
-      let { row, column, playerName } = reqBody;
+      let { row, column, playerName }: attackShip = reqBody;
       try {
+        //get current baord
         const data: string = await this.client.get(playerName);
         const board = JSON.parse(data);
+        //check if the board is being attacked for the first time
         const checkAttack: string = await this.client.get(
           `${playerName}attack`
         );
-        console.log({ checkAttack });
-
         if (parseInt(checkAttack) === 0) {
-          const ships:string[] = [
+          const ships: string[] = [
             this.constants.SHIPNAMES.BATTLESHIPS,
             this.constants.SHIPNAMES.CRUISERS,
             this.constants.SHIPNAMES.DESTROYERS,
             this.constants.SHIPNAMES.SUBMARINES,
           ];
           let flagArr: string[] = [];
-          const obj = {};
+          // checks if board contains all ships before it is attacked
           for (let row of board) {
             for (let column of row) {
               flagArr.push(column);
             }
           }
-          const indexArray:number[] = ships.map((el) => {
+          //check if all ships has been placed on the board to be attacked
+          const indexArray: number[] = ships.map((el) => {
             return flagArr.indexOf(el);
           });
           const flag: boolean = indexArray.indexOf(-1) === -1;
-          console.log({flagArr});
-          
-          console.log({flag});
-          
+
           if (!flag) {
-              return resolve('The defender needs to place all ships before you can attack')
+            return resolve(
+              'The defender needs to place all ships before you can attack'
+            );
           }
         }
+        //increament the number of time board has been attacked
         await this.client.incr(`${playerName}attack`);
-        // reply is null when the key is missing
 
+        // check if board is not empty or has not been hit once
         if (board[row][column] !== '-' && board[row][column] !== 'x') {
           const storedshipdetails: string = await this.client.get(
             `${playerName}ship`
           );
-          const shipStatus = JSON.parse(storedshipdetails);
-
-          console.log({ shipStatus });
-
+          const shipStatus: object = JSON.parse(storedshipdetails);
+          //get the ship that was hit
           const shipName: string = board[row][column];
           let lifeCount = shipStatus[shipName];
+          //decreament the life count
           lifeCount = lifeCount - 1;
-          console.log({ lifeCount, shipName });
           shipStatus[shipName] = lifeCount;
-
+          //signal that the field has been hit once
           board[row][column] = 'x';
           const currentBoard: string = JSON.stringify(board);
+          //store the board as a session
           await this.client.set(playerName, currentBoard);
           const redisValue: string = JSON.stringify(shipStatus);
           await this.client.set(`${playerName}ship`, redisValue);
+          //check status of the ship
           if (shipStatus[shipName] == 0) {
-            console.log('SINK');
             const shipStatusArray: number[] = Object.values(shipStatus);
-            console.log({ shipStatusArray });
-
             const someIsNotZero: boolean = shipStatusArray.some(
               (item) => item !== 0
             );
+            //all ships lives are zero, so it is a win
             if (!someIsNotZero) {
               const totalNumberofAttack: string = await this.client.get(
                 `${playerName}attack`
@@ -82,11 +81,13 @@ export class Ship {
                 `${playerName}miss`
               );
               resolve(
-                `Win! You have completed the game in ${totalNumberofAttack} and ${totalNumberofMiss} missed shots`
+                `Win! You have completed the game in ${totalNumberofAttack} attacks  and ${totalNumberofMiss} missed shots`
               );
             }
+            //all ships lives are not  zero, so you sank a ship
             resolve(`you just sank a ${shipName}`);
           }
+          // ship was just hit
           resolve('Hit');
           //get player current session
         } else {

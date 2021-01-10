@@ -24,3 +24,4 @@ setup(server, serviceLocator);
 server.listen(config.port, () => {
   console.log(`${config.app_name} listening at ${config.port}`);
 });
+module.exports = server;

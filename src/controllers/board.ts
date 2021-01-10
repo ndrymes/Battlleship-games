@@ -22,9 +22,10 @@ export class Board {
       submarines: 4,
     };
     //remove previous session
-    this.client.del(`${playerName}ship`);
-    this.client.del(`${playerName}attack`);
-    this.client.del(`${playerName}miss`);
+    await this.client.del(playerName);
+    await this.client.del(`${playerName}ship`);
+    await this.client.del(`${playerName}attack`);
+    await this.client.del(`${playerName}miss`);
 
     //set number of attack to zero
     await this.client.set(`${playerName}attack`, 0);
@@ -66,31 +67,34 @@ export class Board {
     for (let index of board) {
       console.log(index.join(' '));
     }
-    console.log({ shipName });
     // check if a particular ship already on board
     for (let row of board) {
       for (let column of row) {
-        console.log('colum', column);
-
         if (column === shipName) {
           throw new Error(
-            'ship has already been placed, please use another ship'
+            'This ship has already been placed, please use another ship'
           );
         }
       }
     }
-    console.log('herr', board[row][column]);
     //check if a ship is already  placed on the request space
     if (board[row][column] !== '-') {
       throw new Error('A ship is placed here already');
     }
+    console.log({ row });
+
+    //check if ship is placed on table
+    // if (
+    //   (row) + shipLength-1 >= 10 ||
+    //   (column) + shipLength-1 >= 10
+    // ) {
+    //   throw new Error('you cant place ship beyond board');
+    // }
     //check if ship has one square row below the request space
     if (board[row - 1][column] !== '-') {
       throw new Error('you have to go a row down to place a ship');
     }
     //check if a ship  has one square row above the request space
-    console.log({ board, row, column });
-
     if (board[row + 1][column] !== '-') {
       throw new Error('you have to go a row up to place a ship');
     }
@@ -135,5 +139,27 @@ export class Board {
     //store session
     const redisValue: string = JSON.stringify(board);
     await this.client.set(playerName, redisValue);
+  }
+  async getBoardDetails(playerName: string) {
+    return new Promise<object>(async (resolve, reject) => {
+      try {
+        const data: string = await this.client.get(playerName);
+        // reply is null when the key is missing
+
+        const board = JSON.parse(data);
+        const counts = {};
+        for (let row of board) {
+          row.forEach((element) => {
+            counts[element] = (counts[element] || 0) + 1;
+          });
+        }
+        for (let value in counts) {
+          console.log(value);
+        }
+        resolve(counts);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 }
