@@ -63,10 +63,6 @@ export class Board {
     // reply is null when the key is missing
 
     const board = JSON.parse(data);
-
-    for (let index of board) {
-      console.log(index.join(' '));
-    }
     // check if a particular ship already on board
     for (let row of board) {
       for (let column of row) {
@@ -81,7 +77,6 @@ export class Board {
     if (board[row][column] !== '-') {
       throw new Error('A ship is placed here already');
     }
-    console.log({ row });
 
     //check if ship is placed on table
     // if (
@@ -108,7 +103,6 @@ export class Board {
     }
     // fill ship space on the board
     for (let index = 0; index < shipLength; index++) {
-      // console.log({checkSpace});
 
       if (direction === this.constants.DIRECTION[0]) {
         // check if a ship is already placed while placing ships
@@ -152,10 +146,7 @@ export class Board {
           row.forEach((element) => {
             counts[element] = (counts[element] || 0) + 1;
           });
-        }
-        for (let value in counts) {
-          console.log(value);
-        }
+        } 
         resolve(counts);
       } catch (error) {
         reject(error);
