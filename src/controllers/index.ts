@@ -22,12 +22,16 @@ export class MainController {
     if (!playerName) {
       return this.handleBadRequest(res, 'player name or id is required');
     }
-    const data = await this.boardControllers.addBoard(playerName);
-    return this.handleOk(
-      res,
-      `new Game session is created for player ${playerName}`,
-      data
-    );
+    try {
+      const data = await this.boardControllers.addBoard(playerName);
+      return this.handleOk(
+        res,
+        `new Game session is created for player ${playerName}`,
+        data
+      );
+    } catch (error) {
+      this.handleInternalServerError(res, error);
+    }
   }
 
   async placeShip(req: Request, res: Response) {
@@ -54,6 +58,8 @@ export class MainController {
       });
       return this.handleOk(res, 'ship placed succesfully', data);
     } catch (error) {
+      console.log(error);
+
       return this.handleBadRequest(res, error.message);
     }
   }
@@ -66,7 +72,14 @@ export class MainController {
       );
     }
     try {
-      await this.shipControllers.attack({ playerName, row, column });
+      const data = await this.shipControllers.attack({
+        playerName,
+        row,
+        column,
+      });
+      console.log({ data });
+
+      return this.handleOk(res, 'move made succesfully', data);
     } catch (error) {
       return this.handleBadRequest(res, error.message);
     }

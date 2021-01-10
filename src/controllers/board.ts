@@ -23,6 +23,14 @@ export class Board {
     };
     //remove previous session
     this.client.del(`${playerName}ship`);
+    this.client.del(`${playerName}attack`);
+    this.client.del(`${playerName}miss`);
+
+    //set number of attack to zero
+    await this.client.set(`${playerName}attack`, 0);
+
+    //set number of miss to zero
+    await this.client.set(`${playerName}miss`, 0);
     //store new session for ship
     const shipDetails: string = JSON.stringify(originalShipSizes);
     await this.client.set(`${playerName}ship`, shipDetails);
@@ -38,16 +46,16 @@ export class Board {
     let shipName: string = '';
     switch (shipLength) {
       case 1:
-        shipName = 'battleShips';
+        shipName = this.constants.SHIPNAMES.BATTLESHIPS;
         break;
       case 2:
-        shipName = 'cruisers';
+        shipName = this.constants.SHIPNAMES.CRUISERS;
         break;
       case 3:
-        shipName = 'destroyers';
+        shipName = this.constants.SHIPNAMES.DESTROYERS;
         break;
       case 4:
-        shipName = 'submarines';
+        shipName = this.constants.SHIPNAMES.SUBMARINES;
     }
     //get player current session
     const data: string = await this.client.get(playerName);
@@ -81,6 +89,8 @@ export class Board {
       throw new Error('you have to go a row down to place a ship');
     }
     //check if a ship  has one square row above the request space
+    console.log({ board, row, column });
+
     if (board[row + 1][column] !== '-') {
       throw new Error('you have to go a row up to place a ship');
     }
