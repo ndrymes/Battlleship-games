@@ -5,17 +5,20 @@ export class MainController {
   boardControllers: any;
   constants: any;
   shipControllers: any;
+    logger: any;
   /**
    * Class Constructor
    * @param logger - winston logger
    * @param boardControllers
    * @param  shipControllers;
    */
-  constructor(boardControllers, shipControllers, constants) {
+  constructor(boardControllers, shipControllers, constants,logger) {
+    this.logger = logger
     this.boardControllers = boardControllers;
     this.constants = constants;
     this.shipControllers = shipControllers;
   }
+
 //start a new game session
   async startGame(req: Request, res: Response) {
     const { playerName } = req.body;
@@ -79,11 +82,12 @@ export class MainController {
       });
       return this.handleOk(res, 'ship placed succesfully', data);
     } catch (error) {
-      console.log(error);
+      
 
       return this.handleBadRequest(res, error.message);
     }
   }
+  
   async attackShip(req: Request, res: Response) {
     const { playerName, row, column } = req.body;
     if (!playerName || !row || !column) {
@@ -117,25 +121,12 @@ export class MainController {
     }
   }
   handleOk(res: Response, message: string, data: any) {
-    //this.logger.info('vehicle data gotten successfully');
+    this.logger.info(' data added successfully');
     const response = new Responses(HTTPStatus.OK, message, res, false, data);
     return response.res_message();
   }
-
-  handleNoContent(res: Response, data) {
-    //this.logger.info('There is no vehicle data ');
-    const emptyResponse = new Responses(
-      HTTPStatus.NO_CONTENT,
-      'No content available',
-      res,
-      false,
-      data
-    );
-    return emptyResponse.res_message();
-  }
-
   handleInternalServerError(res: Response, err) {
-    // this.logger.error('Error from getting vehicle data', err);
+     this.logger.error('internal server error', err);
     const resp = new Responses(
       HTTPStatus.INTERNAL_SERVER_ERROR,
       'Internal server error',

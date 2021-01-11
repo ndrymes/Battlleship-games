@@ -4,6 +4,7 @@ import { config } from './config/config';
 
 // service locator via dependency injection
 const serviceLocator = require('./config/di');
+const logger = serviceLocator.get('logger');
 const server = restify.createServer({
   name: config.app_name,
   versions: ['1.0.0'],
@@ -22,6 +23,6 @@ import { setup } from './routes/index';
 
 setup(server, serviceLocator);
 server.listen(config.port, () => {
-  console.log(`${config.app_name} listening at ${config.port}`);
+  logger.info(`${config.app_name} listening at ${config.port}`);
 });
 module.exports = server;
