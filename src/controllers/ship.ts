@@ -3,9 +3,17 @@ import { attackShip } from '../schema/attack';
 export class Ship {
   client: any;
   constants: any;
-  constructor(client, constants) {
+  logger: any;
+  /**
+     * Class Constructor
+     * @param logger - winston logger
+     * @param constants
+     * @param client
+     */
+  constructor(client, constants,logger) {
     this.client = client;
     this.constants = constants;
+    this.logger = logger
   }
   async attack(reqBody: attackShip) {
     return new Promise<string>(async (resolve, reject) => {
@@ -96,6 +104,7 @@ export class Ship {
           //miss
         }
       } catch (error) {
+        this.logger.error('Unable to attack ship', error);
         reject(error);
       }
     });

@@ -2,9 +2,17 @@ import { IaddShip } from '../schema/addShip';
 export class Board {
   client: any;
   constants: any;
-  constructor(client, constants) {
+  logger: any;
+  /**
+     * Class Constructor
+     * @param logger - winston logger
+     * @param constants
+     * @param client
+     */
+  constructor(client, constants,logger) {
     this.client = client;
     this.constants = constants;
+    this.logger = logger
   }
   async addBoard(playerName: string) {
     let board = [];
@@ -21,6 +29,7 @@ export class Board {
       destroyers: 3,
       submarines: 4,
     };
+
     //remove previous session
     await this.client.del(playerName);
     await this.client.del(`${playerName}ship`);
@@ -149,6 +158,7 @@ export class Board {
         } 
         resolve(counts);
       } catch (error) {
+        this.logger.error('Unable to get board details', error); 
         reject(error);
       }
     });
