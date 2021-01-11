@@ -86,14 +86,6 @@ export class Board {
     if (board[row][column] !== '-') {
       throw new Error('A ship is placed here already');
     }
-
-    //check if ship is placed on table
-    // if (
-    //   (row) + shipLength-1 >= 10 ||
-    //   (column) + shipLength-1 >= 10
-    // ) {
-    //   throw new Error('you cant place ship beyond board');
-    // }
     //check if ship has one square row below the request space
     if (board[row - 1][column] !== '-') {
       throw new Error('you have to go a row down to place a ship');
@@ -119,9 +111,14 @@ export class Board {
           throw new Error('A ship is placed here already');
         }
         // check if a ship is already placed while placing ships
-        if (board[row + 1][column] !== '-') {
-          throw new Error('You need to move up one row to place your ship');
+        if (board[row + 1]) {
+            console.log(row);    
+            if (board[row + 1][column] !== '-') {
+                throw new Error('You need to move up one row to place your ship');   
+            }
         }
+        console.log('here');
+        
         //place ship on board vertically
         board[row][column] = shipName;
         row += 1;
