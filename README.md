@@ -5,7 +5,7 @@ The attacker keeps attacking the defenders board until they get all their ships,
 ```
 Node
 typescript
-Libaries : prettier, mocha, axios redis
+Libaries : prettier, mocha, redis
 ```
 **Install all dependencies**
 ```
